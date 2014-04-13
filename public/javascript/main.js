@@ -69,7 +69,7 @@
       video.controls = false; // optional
       video.loop = true;
       video.width = 120;
-
+        video.style.borderRadius="50%";
       var source = document.createElement("source");
       source.src =  URL.createObjectURL(base64_to_blob(data.v));
       source.type =  "video/webm";
@@ -80,7 +80,10 @@
       // var video = document.createElement("img");
       // video.src = URL.createObjectURL(base64_to_blob(data.v));
 
-      document.getElementById("conversation").appendChild(video);
+      document.getElementById("library").appendChild(video);
+
+
+
     }
     // Scroll to the bottom every time we display a new message
     scroll_to_bottom(0);
