@@ -1,9 +1,20 @@
 // Initial code by Borui Wang, updated by Graham Roth
 // For CS247, Spring 2014
 
+var emojis=[];
+var popular=["lol", ":)", ":(", "ugh"];
+//var library=[];
+var library ={};
+var mediaRecorder;
+var recentEmotion=null;
+
+
 (function() {
 
   var cur_video_blob = null;
+  console.log("1");
+  console.log(cur_video_blob);
+  var purpose_blob = null;
   var fb_instance;
 
   $(document).ready(function(){
@@ -49,9 +60,21 @@
     // bind submission box
     $("#submission input").keydown(function( event ) {
       if (event.which == 13) {
-        if(has_emotions($(this).val())){
+        if(has_new_emotions($(this).val())){
+        	//ask to record new video for each new emotion
+        record(mediaRecorder);
           fb_instance_stream.push({m:username+": " +$(this).val(), v:cur_video_blob, c: my_color});
+          console.log("2");
+		 // console.log(cur_video_blob);
         }else{
+         var emotion = has_old_emotions($(this).val());
+         console.log(emotion);
+         if (emotion!= false){
+         	//var index = library.indexOf(emotion);
+         //	console.log(emotion);
+	         fb_instance_stream.push({m:username+": " +$(this).val(),v: library[emotion] ,c: my_color});
+         }
+          console.log("3");
           fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
         }
         $(this).val("");
@@ -69,7 +92,7 @@
       video.controls = false; // optional
       video.loop = true;
       video.width = 120;
-        video.style.borderRadius="50%";
+      //video.style.borderRadius="50%";
       var source = document.createElement("source");
       source.src =  URL.createObjectURL(base64_to_blob(data.v));
       source.type =  "video/webm";
@@ -80,7 +103,8 @@
       // var video = document.createElement("img");
       // video.src = URL.createObjectURL(base64_to_blob(data.v));
 
-      document.getElementById("library").appendChild(video);
+     // document.getElementById("library").appendChild(video);
+     document.getElementById("conversation").appendChild(video);
 
 
 
@@ -106,7 +130,7 @@
     // callback for when we get video stream from user.
     var onMediaSuccess = function(stream) {
       // create video element, attach webcam stream to video element
-      var video_width= 160;
+      var video_width= 120;
       var video_height= 120;
       var webcam_stream = document.getElementById('webcam_stream');
       var video = document.createElement('video');
@@ -130,7 +154,7 @@
 
       // now record stream in 5 seconds interval
       var video_container = document.getElementById('video_container');
-      var mediaRecorder = new MediaStreamRecorder(stream);
+      mediaRecorder = new MediaStreamRecorder(stream);
       var index = 1;
 
       mediaRecorder.mimeType = 'video/webm';
@@ -140,18 +164,18 @@
       mediaRecorder.video_height = video_height/2;
 
       mediaRecorder.ondataavailable = function (blob) {
-          //console.log("new data available!");
+		  console.log("new data available!");
           video_container.innerHTML = "";
 
           // convert data into base 64 blocks
           blob_to_base64(blob,function(b64_data){
-            cur_video_blob = b64_data;
+           cur_video_blob = b64_data;
           });
       };
-      setInterval( function() {
-        mediaRecorder.stop();
-        mediaRecorder.start(3000);
-      }, 3000 );
+    //  setInterval( function() {
+      //  mediaRecorder.stop();
+       // mediaRecorder.start(3000);
+      //}, 3000 );
       console.log("connect to media stream!");
     }
 
@@ -163,16 +187,66 @@
     // get video stream from user. see https://github.com/streamproc/MediaStreamRecorder
     navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
   }
+  
+  var record = function(mediaRecorder){
+	  mediaRecorder.start(3000);
+	  //mediaRecorder.stop();
+	  //blob_to_base64(blob,function(b64_data){
+        //    purpose_blob = b64_data;
+         // });
+  }
 
   // check to see if a message qualifies to be replaced with video.
-  var has_emotions = function(msg){
-    var options = ["lol",":)",":("];
-    for(var i=0;i<options.length;i++){
-      if(msg.indexOf(options[i])!= -1){
-        return true;
+  var has_new_emotions = function(msg){
+    //var options = ["lol",":)",":("];
+    for(var i=0;i<popular.length;i++){
+      if(msg.indexOf(popular[i])!= -1 && emojis.indexOf(popular[i])==-1){
+      	emojis.push(popular[i]);
+      	var takeVideo = window.prompt("Do you want to record a video for "+popular[i]+"?");
+      	if(takeVideo=="yes"){
+	      	saveVideo(popular[i]);
+		  	return true;
+
+      	}else{
+	      	popular.splice(i,1);
+      	}
       }
     }
     return false;
+  }
+  
+    // check to see if a message qualifies to be replaced with video.
+  var has_old_emotions = function(msg){
+    console.log("starting");
+    for(var i=0;i<emojis.length;i++){
+      if(msg.indexOf(emojis[i])!= -1){
+      	return emojis[i];
+      }
+    }
+    console.log("returning");
+    return false;
+  }
+  
+  
+  var saveVideo = function(string){
+	  console.log("saving");
+	  //library.push({string: string, video:cur_video_blob});
+	  library[string]=cur_video_blob;
+	  console.log(library);
+	  
+	  var video = document.createElement("video");
+      video.autoplay = true;
+      video.controls = false; // optional
+      video.loop = true;
+      video.width = 120;
+      video.style.borderRadius="50%";
+      var source = document.createElement("source");
+	  source.src =  URL.createObjectURL(cur_video_blob);
+      source.type =  "video/webm";
+
+      video.appendChild(source);
+      video.title=string;
+      document.getElementById("library").appendChild(video);
   }
 
 
