@@ -6,6 +6,7 @@ var popular=["lol", ":)", ":(", "ugh"];
 var library ={};
 var mediaRecorder;
 var recentEmotion=null;
+var finished=false;
 
 (function() {
 
@@ -14,6 +15,7 @@ var recentEmotion=null;
  // console.log(cur_video_blob);
   var purpose_blob = null;
   var fb_instance;
+  var user;
 
   $(document).ready(function(){
     connect_to_chat_firebase();
@@ -60,8 +62,9 @@ var recentEmotion=null;
       if (event.which == 13) {
         if(has_new_emotions($(this).val())){
         	//ask to record new video for each new emotion
-        record(mediaRecorder);
-          fb_instance_stream.push({m:username+": " +$(this).val(), v:cur_video_blob, c: my_color});
+        	user=$(this).val();
+        setTimeout(function(){fb_instance_stream.push({m:username+": " +user, v:cur_video_blob, c: my_color})},3000);
+
        // console.log("2");
 		 // console.log(cur_video_blob);
         }else{
@@ -78,10 +81,18 @@ var recentEmotion=null;
         $(this).val("");
       }
     });
+    
+    $("#library input").mousedown(function( event ) {
+    	var emoji = window.prompt("what emoji do you want to add a video for?");
+    	record(mediaRecorder);
+    	saveVideo(emoji);
+    	emojis.push(emoji);
+    });
   }
 
   // creates a message node and appends it to the conversation
   function display_msg(data){
+  	//while(!finished){ }
     $("#conversation").append("<div class='msg' style='color:"+data.c+"'>"+data.m+"</div>");
     if(data.v){
       // for video element
@@ -190,11 +201,9 @@ var recentEmotion=null;
 
 
  var record = function(mediaRecorder){
-	  mediaRecorder.start(3000);
-	  //mediaRecorder.stop();
-	  //blob_to_base64(blob,function(b64_data){
-        //    purpose_blob = b64_data;
-         // });
+	 finished=false;
+	 mediaRecorder.start(2000);
+	 finished=true;
   }
 
 // check to see if a message qualifies to be replaced with video.
@@ -205,7 +214,8 @@ var recentEmotion=null;
       	emojis.push(popular[i]);
       	var takeVideo = window.prompt("Do you want to record a video for "+popular[i]+"?");
       	if(takeVideo=="yes"){
-	      	saveVideo(popular[i]);
+      	   	record(mediaRecorder);
+      	   	setTimeout(function(){saveVideo(popular[i])},3000);
 		  	return true;
 
       	}else{
@@ -246,7 +256,11 @@ var recentEmotion=null;
 		   video.title=string;
 		   video.appendChild(source);
 		  document.getElementById("library").appendChild(video);
-  }
+		 var title = document.createElement("h1");
+		 title.innerHTML=string;
+		  document.getElementById("library").appendChild(title);
+
+  };
   
 
 
