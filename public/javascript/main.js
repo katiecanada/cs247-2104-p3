@@ -243,43 +243,40 @@ var time=3;
 	  //library.push({string: string, video:cur_video_blob});
 	  library[string]=cur_video_blob;
 	  var video = document.createElement("video");
-		   video.autoplay = true;
-		   video.controls = false; // optional
-		   video.loop = true;
-		   video.width = 120;
-		   video.style.borderRadius="50%";
-		   var source = document.createElement("source");
-		   source.src =  URL.createObjectURL(base64_to_blob(library[string]));
-		  console.log("library"+source.src);
-		   source.type =  "video/webm";
-		   video.title=string;
-		   video.appendChild(source);
-		  document.getElementById("library").appendChild(video);
-		 var title = document.createElement("h2");
-		 title.innerText=string;
-		 var delete_button = document.createElement("input");
-		 delete_button.type="button";
-		 delete_button.value="X";
-		 delete_button.className="delete";
-		 delete_button.class="delete";
-		 document.getElementById("library").appendChild(title);
-		 document.getElementById("library").appendChild(delete_button);
-		 delete_button.style.top=video.style.top;
-		 console.log(video.style.top);
-		 delete_button.addEventListener("click", function(){
-		 console.log($(this).prev().text());
-		 emojis.splice(emojis.indexOf($(this).prev().text()), 1);
-		 delete library[$(this).prev().text()];
-		 $(this).prev().remove();
-		 $(this).prev().remove();
+	  var container = document.createElement("div");
+	  video.autoplay = true;
+	  video.controls = false; // optional
+	  video.loop = true;
+	  video.width = 120;
+	  video.style.borderRadius="50%";
+	  var source = document.createElement("source");
+	  source.src =  URL.createObjectURL(base64_to_blob(library[string]));
+	  console.log("library"+source.src);
+	  source.type =  "video/webm";
+	  video.title=string;
+	  video.appendChild(source);
+	  var title = document.createElement("h2");
+	  title.innerText=string;
+	  var delete_button = document.createElement("input");
+	  delete_button.type="button";
+	  delete_button.value="X";
+	  delete_button.className="delete";
+	  delete_button.class="delete";
+	  container.appendChild(delete_button);
+	  container.appendChild(video);
+	  container.appendChild(title);
+	  document.getElementById("library").appendChild(container);
+	  delete_button.style.top=video.style.top;
+	  console.log(video.style.top);
+	  delete_button.addEventListener("click", function(){
+		  emojis.splice(emojis.indexOf($(this).next().text()), 1);
+		  delete library[$(this).next().text()];
+		 $(this).next().remove();
+		 $(this).next().remove();
 		 $(this).remove();
-		 });
+	});
   };
   
-
-
-
-
 
 
   // some handy methods for converting blob to base 64 and vice versa

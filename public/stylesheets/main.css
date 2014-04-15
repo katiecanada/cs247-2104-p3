@@ -83,6 +83,6 @@ h2 {
   margin-top: 0px;
 }
 .delete {
-  position: fixed;
-  right: 10px;
+  float: right;
+  top: 10px;
 }
