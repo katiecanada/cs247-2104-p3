@@ -2,7 +2,7 @@
 // For CS247, Spring 2014
 
 var emojis=[];
-var popular=["lol", ":)", ":(", "ugh"];
+var popular=["lol", ":)", ":(", "ugh", ":p", "haha", "rofl", ";)", ":|", "bahaha", "whatever", "yeah!", "phssh", "<3"];
 var library ={};
 var mediaRecorder;
 var recentEmotion=null;
