@@ -9,34 +9,53 @@ a {
 
 #webcam_stream{
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 30%;
+  left: 35%;
   padding: 0;
   video{
-    border: 2px solid #dcc;
+    border: 2px solid #E7FEFF;
   }
+  display:none;
 }
 
 #library{
 	position: absolute;
-	top:150px;
+	top:10px;
 	right:10px;
 	padding: 0;
 	max-width: 120px;
+	border: solid;
+	border-color: #E7FEFF;
+	background-color: #E7FEFF;
+	opacity: 10%;
+	color: #151B54;
+}
+
+#new{
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+#welcome{
+	color:#151B54;
 }
 
 #second_counter{
   position: fixed;
-  top: 20px;
+  top: 33%;
+  left:63%;
   right: 20px;
-  color: white;
+  color:white;
   z-index: 999;
+  display: none;
+  font-size: 20pt;
 }
 
 #conversation{
   padding: 10px 10px 80px;
   overflow-y: scroll;
   height: 100%;
+  width:80%;
 }
 
 #submission{
@@ -44,7 +63,7 @@ a {
   bottom: 0;
   width: 100%;
   right: 0;
-  border-top: 2px solid #dcc;
+  border-top: 2px solid #E7FEFF;
   background: #fff;
 
   input{
@@ -69,6 +88,12 @@ a {
   padding: 50px 0;
 }
 
-h1{
+h1, h2{
 	text-align: center;
+	margin-top: 0px;
+}
+
+.delete{
+	position: fixed;
+	right:10px;
 }

@@ -7,6 +7,9 @@ var library ={};
 var mediaRecorder;
 var recentEmotion=null;
 var finished=false;
+var video_length=2000;
+var pause = video_length+1000;
+var time=3;
 
 (function() {
 
@@ -24,7 +27,7 @@ var finished=false;
 
   function connect_to_chat_firebase(){
     /* Include your Firebase link here!*/
-    fb_instance = new Firebase("https://gsroth-p3-v1.firebaseio.com");
+    fb_instance = new Firebase("https://247-video-library.firebaseIO.com");
 
     // generate new chatroom id or use existing id
     var url_segments = document.location.href.split("/#");
@@ -33,13 +36,13 @@ var finished=false;
     }else{
       fb_chat_room_id = Math.random().toString(36).substring(7);
     }
-    display_msg({m:"Share this url with your friend to join this chat: "+ document.location.origin+"/#"+fb_chat_room_id,c:"red"})
+    display_msg({m:"Share this url with your friend to join this chat: "+ document.location.origin+"/#"+fb_chat_room_id,c:"#151B54"})
 
     // set up variables to access firebase data structure
     var fb_new_chat_room = fb_instance.child('chatrooms').child(fb_chat_room_id);
     var fb_instance_users = fb_new_chat_room.child('users');
     var fb_instance_stream = fb_new_chat_room.child('stream');
-    var my_color = "#"+((1<<24)*Math.random()|0).toString(16);
+    var my_color = "#057D9F";
 
     // listen to events
     fb_instance_users.on("child_added",function(snapshot){
@@ -56,27 +59,22 @@ var finished=false;
     }
     fb_instance_users.push({ name: username,c: my_color});
     $("#waiting").remove();
+   
 
     // bind submission box
     $("#submission input").keydown(function( event ) {
       if (event.which == 13) {
         if(has_new_emotions($(this).val())){
-        	//ask to record new video for each new emotion
         	user=$(this).val();
-        setTimeout(function(){fb_instance_stream.push({m:username+": " +user, v:cur_video_blob, c: my_color})},3000);
-
-       // console.log("2");
-		 // console.log(cur_video_blob);
+			setTimeout(function(){fb_instance_stream.push({m:username+": " +user, v:cur_video_blob, c: my_color})},pause);
         }else{
            var emotion = has_old_emotions($(this).val());
-         if (emotion!= false){
-         	//var index = library.indexOf(emotion);
-         //	console.log(emotion);
-	         fb_instance_stream.push({m:username+": " +$(this).val(),v: library[emotion] ,c: my_color});
-         }else{
-         // console.log("3");
-          fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
-		  }
+		   if (emotion!= false){
+		   		console.log(emotion);
+	         	fb_instance_stream.push({m:username+": " +$(this).val(),v: library[emotion] ,c: my_color});
+			}else{
+				 fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
+			}
         }
         $(this).val("");
       }
@@ -85,8 +83,8 @@ var finished=false;
     $("#library input").mousedown(function( event ) {
     	var emoji = window.prompt("what emoji do you want to add a video for?");
     	record(mediaRecorder);
-    	saveVideo(emoji);
-    	emojis.push(emoji);
+      	setTimeout(function(){saveVideo(emoji)},pause);
+      	 emojis.push(emoji);
     });
   }
 
@@ -140,8 +138,8 @@ var finished=false;
     // callback for when we get video stream from user.
     var onMediaSuccess = function(stream) {
       // create video element, attach webcam stream to video element
-      var video_width= 160;
-      var video_height= 120;
+      var video_width= 255;
+      var video_height= 200;
       var webcam_stream = document.getElementById('webcam_stream');
       var video = document.createElement('video');
       webcam_stream.innerHTML = "";
@@ -156,10 +154,11 @@ var finished=false;
       webcam_stream.appendChild(video);
 
       // counter
-      var time = 0;
+      //var time = 0;
       var second_counter = document.getElementById('second_counter');
       var second_counter_update = setInterval(function(){
-        second_counter.innerHTML = time++;
+        if(time<=3 &&time >0) second_counter.innerHTML = time--;
+        else time=3;
       },1000);
 
       // now record stream in 5 seconds interval
@@ -182,11 +181,6 @@ var finished=false;
             cur_video_blob = b64_data;
           });
       };
-      //setInterval( function() {
-     //   mediaRecorder.stop();
-       // mediaRecorder.start(3000);
-      //}, 3000 );
-     // console.log("connect to media stream!");
     }
 
     // callback if there is an error when we try and get the video stream
@@ -201,9 +195,12 @@ var finished=false;
 
 
  var record = function(mediaRecorder){
-	 finished=false;
-	 mediaRecorder.start(2000);
-	 finished=true;
+	 time=3;
+	 document.getElementById("second_counter").style.display="block";
+	 document.getElementById("webcam_stream").style.display="block";
+	 mediaRecorder.start(video_length);
+	 setTimeout(function(){document.getElementById("webcam_stream").style.display="none"}, pause);
+	 setTimeout(function(){document.getElementById("second_counter").style.display="none"}, pause);	 
   }
 
 // check to see if a message qualifies to be replaced with video.
@@ -211,15 +208,18 @@ var finished=false;
     //var options = ["lol",":)",":("];
     for(var i=0;i<popular.length;i++){
       if(msg.indexOf(popular[i])!= -1 && emojis.indexOf(popular[i])==-1){
-      	emojis.push(popular[i]);
-      	var takeVideo = window.prompt("Do you want to record a video for "+popular[i]+"?");
-      	if(takeVideo=="yes"){
+      	var takeVideo = window.confirm("Do you want to record a video for "+popular[i]+"?");
+      	console.log(takeVideo);
+      	if(takeVideo==true){
+      	    emojis.push(popular[i]);
+      		console.log("yes");
       	   	record(mediaRecorder);
-      	   	setTimeout(function(){saveVideo(popular[i])},3000);
+      	   	setTimeout(function(){saveVideo(popular[i])},pause);
+	  	  	setTimeout(function(){delete popular[i];},pause);
 		  	return true;
-
       	}else{
-	      	popular.splice(i,1); //removes emoticon from the popular list so we don't prompt again
+	      	delete popular[i]; //removes emoticon from the popular list so we don't prompt again
+		  	return false;
       	}
       }
     }
@@ -228,7 +228,6 @@ var finished=false;
   
     // check to see if a message qualifies to be replaced with video.
   var has_old_emotions = function(msg){
-    //console.log("starting");
     for(var i=0;i<emojis.length;i++){
       if(msg.indexOf(emojis[i])!= -1){
       	return emojis[i];
@@ -256,10 +255,25 @@ var finished=false;
 		   video.title=string;
 		   video.appendChild(source);
 		  document.getElementById("library").appendChild(video);
-		 var title = document.createElement("h1");
-		 title.innerHTML=string;
-		  document.getElementById("library").appendChild(title);
-
+		 var title = document.createElement("h2");
+		 title.innerText=string;
+		 var delete_button = document.createElement("input");
+		 delete_button.type="button";
+		 delete_button.value="X";
+		 delete_button.className="delete";
+		 delete_button.class="delete";
+		 document.getElementById("library").appendChild(title);
+		 document.getElementById("library").appendChild(delete_button);
+		 delete_button.style.top=video.style.top;
+		 console.log(video.style.top);
+		 delete_button.addEventListener("click", function(){
+		 console.log($(this).prev().text());
+		 emojis.splice(emojis.indexOf($(this).prev().text()), 1);
+		 delete library[$(this).prev().text()];
+		 $(this).prev().remove();
+		 $(this).prev().remove();
+		 $(this).remove();
+		 });
   };
   
 
