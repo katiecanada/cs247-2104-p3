@@ -3,17 +3,15 @@
 
 var emojis=[];
 var popular=["lol", ":)", ":(", "ugh"];
-//var library=[];
 var library ={};
 var mediaRecorder;
 var recentEmotion=null;
 
-
 (function() {
 
   var cur_video_blob = null;
-  console.log("1");
-  console.log(cur_video_blob);
+   //console.log("1");
+ // console.log(cur_video_blob);
   var purpose_blob = null;
   var fb_instance;
 
@@ -64,18 +62,18 @@ var recentEmotion=null;
         	//ask to record new video for each new emotion
         record(mediaRecorder);
           fb_instance_stream.push({m:username+": " +$(this).val(), v:cur_video_blob, c: my_color});
-          console.log("2");
+       // console.log("2");
 		 // console.log(cur_video_blob);
         }else{
-         var emotion = has_old_emotions($(this).val());
-         console.log(emotion);
+           var emotion = has_old_emotions($(this).val());
          if (emotion!= false){
          	//var index = library.indexOf(emotion);
          //	console.log(emotion);
 	         fb_instance_stream.push({m:username+": " +$(this).val(),v: library[emotion] ,c: my_color});
-         }
-          console.log("3");
+         }else{
+         // console.log("3");
           fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
+		  }
         }
         $(this).val("");
       }
@@ -92,9 +90,10 @@ var recentEmotion=null;
       video.controls = false; // optional
       video.loop = true;
       video.width = 120;
-      //video.style.borderRadius="50%";
+        video.style.borderRadius="50%";
       var source = document.createElement("source");
       source.src =  URL.createObjectURL(base64_to_blob(data.v));
+      console.log("convo"+source.src);
       source.type =  "video/webm";
 
       video.appendChild(source);
@@ -103,7 +102,7 @@ var recentEmotion=null;
       // var video = document.createElement("img");
       // video.src = URL.createObjectURL(base64_to_blob(data.v));
 
-     // document.getElementById("library").appendChild(video);
+       // document.getElementById("library").appendChild(video);
      document.getElementById("conversation").appendChild(video);
 
 
@@ -130,7 +129,7 @@ var recentEmotion=null;
     // callback for when we get video stream from user.
     var onMediaSuccess = function(stream) {
       // create video element, attach webcam stream to video element
-      var video_width= 120;
+      var video_width= 160;
       var video_height= 120;
       var webcam_stream = document.getElementById('webcam_stream');
       var video = document.createElement('video');
@@ -154,7 +153,7 @@ var recentEmotion=null;
 
       // now record stream in 5 seconds interval
       var video_container = document.getElementById('video_container');
-      mediaRecorder = new MediaStreamRecorder(stream);
+	  mediaRecorder = new MediaStreamRecorder(stream);
       var index = 1;
 
       mediaRecorder.mimeType = 'video/webm';
@@ -164,19 +163,19 @@ var recentEmotion=null;
       mediaRecorder.video_height = video_height/2;
 
       mediaRecorder.ondataavailable = function (blob) {
-		  console.log("new data available!");
+         // console.log("new data available!");
           video_container.innerHTML = "";
 
           // convert data into base 64 blocks
           blob_to_base64(blob,function(b64_data){
-           cur_video_blob = b64_data;
+            cur_video_blob = b64_data;
           });
       };
-    //  setInterval( function() {
-      //  mediaRecorder.stop();
+      //setInterval( function() {
+     //   mediaRecorder.stop();
        // mediaRecorder.start(3000);
       //}, 3000 );
-      console.log("connect to media stream!");
+     // console.log("connect to media stream!");
     }
 
     // callback if there is an error when we try and get the video stream
@@ -187,8 +186,10 @@ var recentEmotion=null;
     // get video stream from user. see https://github.com/streamproc/MediaStreamRecorder
     navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
   }
-  
-  var record = function(mediaRecorder){
+
+
+
+ var record = function(mediaRecorder){
 	  mediaRecorder.start(3000);
 	  //mediaRecorder.stop();
 	  //blob_to_base64(blob,function(b64_data){
@@ -196,7 +197,7 @@ var recentEmotion=null;
          // });
   }
 
-  // check to see if a message qualifies to be replaced with video.
+// check to see if a message qualifies to be replaced with video.
   var has_new_emotions = function(msg){
     //var options = ["lol",":)",":("];
     for(var i=0;i<popular.length;i++){
@@ -208,7 +209,7 @@ var recentEmotion=null;
 		  	return true;
 
       	}else{
-	      	popular.splice(i,1);
+	      	popular.splice(i,1); //removes emoticon from the popular list so we don't prompt again
       	}
       }
     }
@@ -217,37 +218,40 @@ var recentEmotion=null;
   
     // check to see if a message qualifies to be replaced with video.
   var has_old_emotions = function(msg){
-    console.log("starting");
+    //console.log("starting");
     for(var i=0;i<emojis.length;i++){
       if(msg.indexOf(emojis[i])!= -1){
       	return emojis[i];
       }
     }
-    console.log("returning");
+  //  console.log("returning");
     return false;
   }
   
   
   var saveVideo = function(string){
-	  console.log("saving");
+	  //console.log("saving");
 	  //library.push({string: string, video:cur_video_blob});
 	  library[string]=cur_video_blob;
-	  console.log(library);
-	  
 	  var video = document.createElement("video");
-      video.autoplay = true;
-      video.controls = false; // optional
-      video.loop = true;
-      video.width = 120;
-      video.style.borderRadius="50%";
-      var source = document.createElement("source");
-	  source.src =  URL.createObjectURL(cur_video_blob);
-      source.type =  "video/webm";
-
-      video.appendChild(source);
-      video.title=string;
-      document.getElementById("library").appendChild(video);
+		   video.autoplay = true;
+		   video.controls = false; // optional
+		   video.loop = true;
+		   video.width = 120;
+		   video.style.borderRadius="50%";
+		   var source = document.createElement("source");
+		   source.src =  URL.createObjectURL(base64_to_blob(library[string]));
+		  console.log("library"+source.src);
+		   source.type =  "video/webm";
+		   video.title=string;
+		   video.appendChild(source);
+		  document.getElementById("library").appendChild(video);
   }
+  
+
+
+
+
 
 
   // some handy methods for converting blob to base 64 and vice versa
