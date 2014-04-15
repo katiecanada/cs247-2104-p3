@@ -269,8 +269,10 @@ var time=3;
 	  delete_button.style.top=video.style.top;
 	  console.log(video.style.top);
 	  delete_button.addEventListener("click", function(){
-		  emojis.splice(emojis.indexOf($(this).next().text()), 1);
-		  delete library[$(this).next().text()];
+		 // emojis.splice(emojis.indexOf($(this).next().text()), 1);
+		 delete emojis[emojis.indexOf($(this).next().next().text())];
+		 delete library[$(this).next().next().text()];
+		 console.log(library);
 		 $(this).next().remove();
 		 $(this).next().remove();
 		 $(this).remove();
